@@ -1,0 +1,14 @@
+---
+- name: Update grub.cfg file
+  hosts: grub_hosts
+  become: true
+
+  tasks:
+    - name: update grub.cfg
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX'
+        line: 'GRUB_CMDLINE_LINUX="resume=/dev/mapper/cl_cent--control-swap rd.lvm.lv=cl_cent-control/root rd.lvm.lv=cl_cent-control/swap rhgb quiet net.ifnames=0 biosdevname=0"'
+
+    - name: update grub2
+      command: "grub2-mkconfig -o /boot/grub2/grub.cfg"

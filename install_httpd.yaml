@@ -1,0 +1,37 @@
+---
+- name: Install httpd
+  hosts: httpd_hosts
+  become: true
+
+  tasks:
+    - name: Upgrade all packages
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: Enable and start httpd service
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create file /var/www/html/index.html
+      command: echo "Welcome to my web server" > /var/www/html/index.html
+
+# FIREWALLD
+    - name: Allow HTTP
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+
+    - name: Enable and start httpd service
+      systemd:
+        name: firewalld
+        state: restarted
+        enabled: yes

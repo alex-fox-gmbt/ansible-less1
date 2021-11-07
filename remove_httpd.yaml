@@ -1,0 +1,40 @@
+---
+- name: Remove httpd
+  hosts: httpd_hosts
+  become: true
+
+  tasks:
+    - name: Disable and remove httpd service
+      systemd:
+        name: httpd
+        state: stopped
+        enabled: no
+      register: httpd_service_result
+      failed_when: "httpd_service_result is failed and 'Could not find the requested service' not in httpd_service_result.msg"
+
+    - name: showing report
+      debug:
+        var: httpd_service_result
+        
+    - name: Remove file /var/www/html/index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Remove httpd
+      yum:
+        name: httpd
+        state: absent
+
+# FIREWALLD
+    - name: Remove Firewalld HTTP rule
+      firewalld:
+        service: http
+        permanent: yes
+        state: disabled
+
+    - name: Restart Firewalld
+      systemd:
+        name: firewalld
+        state: restarted
+        enabled: yes
